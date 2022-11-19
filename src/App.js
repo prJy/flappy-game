@@ -128,7 +128,6 @@ function App() {
 
   useEffect(() => {
     if (isGameOver) {
-      setScore(0);
       setAsteroidLeft(board_Width - asteroid_Width);
       const height = Math.random() * asteroidHeight + space_Asteroids;
       setAsteroidHeight(height);
@@ -141,8 +140,8 @@ function App() {
   };
 
   const handleGameStart = () => {
+    setScore(0);
     setGameHasStarted(true);
-    setIsGameOver(false);
     handleCloseSettings();
   };
 
@@ -170,9 +169,8 @@ function App() {
   return (
     <GameContainer>
       <GameBoard id="gameBoard" onClick={handleCharacterFlying} width={board_Width}>
-      <ScoreBoard>{score}</ScoreBoard>
-        <Character size={char_Size} top={characterPos} selectedChar={currentCharacter}/>
-        
+      <ScoreBoard width={720}>{score}</ScoreBoard>
+        <Character size={char_Size} top={characterPos} selectedChar={currentCharacter}/>        
         <GameControls isVisible={!gameHasStarted}>
           <ConfigContainer isVisible={isConfigOpen}>
             <ConfigHeader>

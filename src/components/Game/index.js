@@ -85,11 +85,13 @@ export const ControlButton = styled.button`
 
 export const ScoreBoard = styled.div`
   position: absolute;
-  left: 75%;
-  color: white;
+  color: #f80;
   font-size: 60px;
   font-weight: bold;
-  width: 50px;
+  width: ${props => props.width}px;
+  text-shadow: 5px 5px 0px #915100;
+  text-align: center;
+  z-index: 100;
 `;
 
 export const Asteroid = styled.div`
