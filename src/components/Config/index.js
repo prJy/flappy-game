@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const ConfigContainer = styled.div`
   display: ${props => props.isVisible ? 'flex' : 'none' };
   flex-direction: column;
-  width: 450px;
+  width: 350px;
   background: #d7b6b6;
   border-radius: 10px;
   margin-bottom: 20px;
@@ -21,7 +21,7 @@ export const ConfigHeader = styled.div`
 `;
 
 export const ConfigTitle = styled.div`
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   text-align: center;
   width: 100%;

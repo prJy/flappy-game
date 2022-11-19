@@ -32,7 +32,7 @@ const locales = {
   }
 }
 
-const availableSkinsNames =["1", "2", "3", "4"];
+const availableSkinsNames =["1","1-1", "2", "3", "4",];
 
 const char_Size = 64;
 const board_Height = 696;
@@ -53,7 +53,7 @@ function App() {
   const [configs, setConfigs] = useState(initialConfig);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [characterPos, setCharacterPos] = useState((board_Height / 2) - char_Size); 
-  const [asteroidHeight, setAsteroidHeight] = useState(100);
+  const [asteroidHeight, setAsteroidHeight] = useState(400);
   const [asteroidLeft, setAsteroidLeft] = useState(board_Width - asteroid_Width);
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
@@ -98,7 +98,11 @@ function App() {
    
     if (gameHasStarted && asteroidLeft >= -asteroid_Width) {
       asteroidAnimation = setInterval(() => {
-        let position = asteroidLeft - 5;
+        let speed = 5;
+        let step = 5;
+        let speedMultiplier = Math.floor((score / step)) + 1;
+        
+        let position = asteroidLeft - (speed * speedMultiplier);
         setAsteroidLeft(position);
       }, 30);
 
@@ -106,9 +110,11 @@ function App() {
         clearInterval(asteroidAnimation);
       };
     } 
-    else if(gameHasStarted) {
+    else 
+    if(gameHasStarted) {
       setAsteroidLeft(board_Width - asteroid_Width);
-      const height = Math.random() * asteroidHeight + space_Asteroids;
+  
+      const height = Math.floor((Math.random() * asteroidHeight)) + space_Asteroids;
       setAsteroidHeight(height);
       let newScore = score +1;
       setScore(newScore);
@@ -117,10 +123,10 @@ function App() {
   }, [asteroidHeight, asteroidLeft, gameHasStarted, score]);
  
   useEffect(()=>{
-    const collidedWithTopAsteroid = characterPos >= 0 && characterPos < asteroidHeight;
-    const collidedWithBottomAsteroid = characterPos >= board_Height - bottomAsteroidHeight;
+    const topCollision = characterPos >= 0 && characterPos < asteroidHeight;
+    const bottomCollision = characterPos >= board_Height - bottomAsteroidHeight;
 
-    if ((asteroidLeft >= 0 && asteroidLeft <= asteroid_Width) && (collidedWithBottomAsteroid || collidedWithTopAsteroid)) {
+    if ((asteroidLeft >= 0 && asteroidLeft <= asteroid_Width) && (topCollision || bottomCollision)) {
       setGameHasStarted(false);
       setIsGameOver(true);
     }

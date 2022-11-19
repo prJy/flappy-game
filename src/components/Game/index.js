@@ -1,12 +1,15 @@
 import styled from "styled-components";
 
-export const Character = styled.div`
+export const Character = styled.div.attrs(props => ({
+  style: {
+      width: `${props.size}px`,
+      height: `${props.size}px`,
+      top: `${props.top}px`,
+  },
+}))`
   position: absolute;
   background: url("/chars/${props=> props.selectedChar}.png") center center no-repeat;
   background-size: contain;
-  width: ${(props) => props.size}px;
-  height: ${(props) => props.size}px;
-  top: ${(props) => props.top}px;
 `;
 
 export const GameContainer = styled.div`
@@ -94,12 +97,27 @@ export const ScoreBoard = styled.div`
   z-index: 100;
 `;
 
-export const Asteroid = styled.div`
-  display: ${props => props?.isHidden ? 'none' : 'block' };
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
-  left: ${props => props.left}px;
-  top: ${props => props.top}px;
-  background: red;
+export const Asteroid = styled.div.attrs(props => ({
+  style: {
+    display: `${props.isHidden ? 'none' : 'block' }`,
+    width: `${props.width}px`,
+    height: `${props.height}px`,
+    left: `${props.left}px`,
+    top: `${props.top}px`,
+  },
+  }))`
+  background: rgb(114,107,237);
+  background: -moz-linear-gradient(180deg, rgba(114,107,237,1) 0%, rgba(102,119,186,1) 18%, rgba(0,212,255,1) 100%);
+  background: -webkit-linear-gradient(180deg, rgba(114,107,237,1) 0%, rgba(102,119,186,1) 18%, rgba(0,212,255,1) 100%);
+  background: linear-gradient(180deg, rgba(114,107,237,1) 0%, rgba(102,119,186,1) 18%, rgba(0,212,255,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#726bed",endColorstr="#00d4ff",GradientType=1);
+  animation: gradient 1s ease infinite; 
   position: relative;  
+  box-shadow:0 0 5px #fff,0 0 8px #fff,0 0 12px #fff,0 0 15px blue,0 0 25px blue;
+  z-index:5;
+  transition: height 300ms,;
+  -moz-transition: height 300ms;
+  -webkit-transition: height 300ms;
+  -o-transition: height 300ms;
+  -ms-transition: height 300ms;
 `;
