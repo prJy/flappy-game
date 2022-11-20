@@ -1,5 +1,5 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import {
   GameContainer,
   GameBoard,
@@ -37,10 +37,13 @@ const availableSkinsNames =["1","1-1", "2", "3", "4",];
 const char_Size = 64;
 const board_Height = 696;
 const board_Width = 720;
-const charGravity = 8;
+const charGravity = 9;
 const charImpulse = char_Size * 1.5;
 const space_Asteroids = 200;
 const asteroid_Width = 40;
+const hasCollision = true;
+const speed = 5;
+const step = 5;
 
 function App() {
   
@@ -48,19 +51,34 @@ function App() {
     lang: "pt_BR",
   }
 
+  const createNewAsteroid = () =>  {
+    // F = ( SCREEN HEIGHT * PERCENT ) - SPACE_BETWEEN_ASTEROIDS
+    return Math.floor((Math.random() * board_Height)) - space_Asteroids;   
+ }
+
   const [gameHasStarted, setGameHasStarted] = useState(false);
   const [currentCharacter, setCurrentCharacter] = useState(1);
   const [configs, setConfigs] = useState(initialConfig);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [characterPos, setCharacterPos] = useState((board_Height / 2) - char_Size); 
-  const [asteroidHeight, setAsteroidHeight] = useState(400);
+  const [asteroidHeight, setAsteroidHeight] = useState(createNewAsteroid);
   const [asteroidLeft, setAsteroidLeft] = useState(board_Width - asteroid_Width);
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
+  const gameBoard = useRef(null);
 
   const bottomAsteroidHeight = board_Height - space_Asteroids - asteroidHeight;
   const bottomAsteroidTop = board_Height - (bottomAsteroidHeight + asteroidHeight);
+  const speedMultiplier = Math.floor((score / step)) + 1;
 
+  // CREATE NEW ASTEROID 
+  const refreshAsteroidAnimation = useCallback(() => {
+    setAsteroidLeft(board_Width - asteroid_Width);
+      // F = ( SCREEN HEIGHT * PERCENT ) - SPACE_BETWEEN_ASTEROIDS
+      setAsteroidHeight(createNewAsteroid);
+  }, [setAsteroidHeight, setAsteroidLeft]);
+
+  // BACKGROUND ANIMATION
   useEffect(() => {
     let backroundAnimationId;
     let position = 0;
@@ -68,7 +86,7 @@ function App() {
     if (gameHasStarted) {
       backroundAnimationId = setInterval(() => {
         position -= 5;
-        document.getElementById('gameBoard').style.backgroundPositionX= `${position}px`;
+        gameBoard.current.style.backgroundPositionX= `${position}px`;
       }, 30);
     }
     
@@ -77,6 +95,7 @@ function App() {
     };
   }, [gameHasStarted]);
 
+  // CHARACTER GRAVITY ANIMATION
   useEffect(() =>{
     let gravityAnimation;
    
@@ -93,15 +112,12 @@ function App() {
     
   }, [characterPos, gameHasStarted]);
   
+  // ASTEROID MOVEMENT
   useEffect(() =>{
     let asteroidAnimation;
    
     if (gameHasStarted && asteroidLeft >= -asteroid_Width) {
-      asteroidAnimation = setInterval(() => {
-        let speed = 5;
-        let step = 5;
-        let speedMultiplier = Math.floor((score / step)) + 1;
-        
+      asteroidAnimation = setInterval(() => {        
         let position = asteroidLeft - (speed * speedMultiplier);
         setAsteroidLeft(position);
       }, 30);
@@ -110,19 +126,18 @@ function App() {
         clearInterval(asteroidAnimation);
       };
     } 
-    else 
-    if(gameHasStarted) {
-      setAsteroidLeft(board_Width - asteroid_Width);
-  
-      const height = Math.floor((Math.random() * asteroidHeight)) + space_Asteroids;
-      setAsteroidHeight(height);
+    else if (gameHasStarted) {
+      refreshAsteroidAnimation();
       let newScore = score +1;
       setScore(newScore);
     }
     
-  }, [asteroidHeight, asteroidLeft, gameHasStarted, score]);
+  }, [asteroidHeight, asteroidLeft, gameHasStarted, score, bottomAsteroidHeight, speedMultiplier, refreshAsteroidAnimation]);
  
+  // COLLISION DETECTION
   useEffect(()=>{
+    if (!hasCollision) return;
+
     const topCollision = characterPos >= 0 && characterPos < asteroidHeight;
     const bottomCollision = characterPos >= board_Height - bottomAsteroidHeight;
 
@@ -134,12 +149,10 @@ function App() {
 
   useEffect(() => {
     if (isGameOver) {
-      setAsteroidLeft(board_Width - asteroid_Width);
-      const height = Math.random() * asteroidHeight + space_Asteroids;
-      setAsteroidHeight(height);
+      refreshAsteroidAnimation();
       setIsGameOver(false);
     }
-  }, [asteroidHeight, isGameOver]);
+  }, [asteroidHeight, isGameOver, refreshAsteroidAnimation]);
 
   const t = (string) => {
     return locales[configs.lang][string];
@@ -171,10 +184,9 @@ function App() {
     }
   }
 
-
   return (
     <GameContainer>
-      <GameBoard id="gameBoard" onClick={handleCharacterFlying} width={board_Width}>
+      <GameBoard ref={gameBoard} onClick={handleCharacterFlying} width={board_Width}>
       <ScoreBoard width={720}>{score}</ScoreBoard>
         <Character size={char_Size} top={characterPos} selectedChar={currentCharacter}/>        
         <GameControls isVisible={!gameHasStarted}>
